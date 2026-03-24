@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recompensapp — Panel de Configuración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --b0:#050408; --b1:#09080d; --b2:#0f0d14;
+  --b3:#16131e; --b4:#1e1a2a; --b5:#271f39;
+  --au0:#fff8e6; --au1:#f5d97a; --au2:#d4a72c;
+  --au3:#b8891a; --au4:#8c6410;
+  --auf:rgba(212,167,44,.06); --auf2:rgba(212,167,44,.12);
+  --aub:rgba(212,167,44,.32);
+  --jade:#0fa878; --jadeb:rgba(15,168,120,.22);
+  --coral:#e05d4b; --coralb:rgba(224,93,75,.22);
+  --sky:#4fc8e4;
+  --brd:rgba(255,255,255,.07); --brd2:rgba(212,167,44,.18);
+  --t0:#f0e8d0; --t1:#b8a880; --t2:#6e6050; --t3:#3a3228;
+  --sh2:0 8px 40px rgba(0,0,0,.7);
+  --sh3:0 20px 64px rgba(0,0,0,.78);
+  --fd:'Cormorant Garamond',Georgia,serif;
+  --fu:'Syne',system-ui,sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --r:12px; --rt:100px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--fu); background:var(--b0); color:var(--t0);
+  min-height:100vh; line-height:1.6;
+}
+body::before{
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+body::after{
+  content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 55% 45% at 5% 0%, rgba(212,167,44,.07), transparent 55%),
+    radial-gradient(ellipse 40% 50% at 95% 100%, rgba(79,200,228,.04), transparent 55%);
+}
+
+/* ── Layout ── */
+.layout{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; position:relative; z-index:1; }
+@media(max-width:860px){ .layout{ grid-template-columns:1fr; } }
+
+/* ── Sidebar ── */
+.sidebar{
+  background:var(--b1); border-right:1px solid var(--brd);
+  display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+@media(max-width:860px){ .sidebar{ display:none; } }
+.sb-logo{
+  padding:28px 20px 20px;
+  display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid var(--brd);
+}
+.sb-gem{
+  width:32px; height:32px; border-radius:9px;
+  background:linear-gradient(135deg,var(--au3),var(--au2));
+  display:flex; align-items:center; justify-content:center; font-size:.9rem;
+  box-shadow:0 4px 18px rgba(212,167,44,.3); flex-shrink:0;
+}
+.sb-name{
+  font-family:var(--fd); font-size:1.1rem; font-weight:600; letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--au0),var(--au1));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.sb-sub{ font-size:.58rem; color:var(--t3); letter-spacing:.1em; text-transform:uppercase; }
+
+.sb-nav{ flex:1; padding:16px 12px; display:flex; flex-direction:column; gap:2px; }
+.sb-section{ font-size:.55rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--t3); padding:14px 8px 6px; }
+.sb-item{
+  display:flex; align-items:center; gap:10px; padding:9px 12px;
+  border-radius:9px; cursor:pointer; transition:all .2s; color:var(--t2); font-size:.8rem; font-weight:500;
+  border:1px solid transparent; text-decoration:none;
+}
+.sb-item:hover{ background:var(--auf); color:var(--t1); border-color:var(--brd2); }
+.sb-item.active{ background:var(--auf2); color:var(--au1); border-color:var(--aub); }
+.sb-icon{ font-size:1rem; flex-shrink:0; width:20px; text-align:center; }
+
+.sb-status{ padding:16px 12px; border-top:1px solid var(--brd); }
+.sb-env{
+  display:flex; align-items:center; gap:8px; padding:10px 12px;
+  background:var(--b2); border:1px solid var(--brd); border-radius:10px;
+}
+.env-dot{ width:7px; height:7px; border-radius:50%; background:var(--coral); flex-shrink:0; }
+.env-dot.ok{ background:var(--jade); animation:pulse 2.2s infinite; }
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,168,120,.6)}70%{box-shadow:0 0 0 8px rgba(15,168,120,0)}100%{box-shadow:0 0 0 0 rgba(15,168,120,0)}}
+.env-info{ flex:1; }
+.env-lbl{ font-size:.65rem; color:var(--t2); font-weight:600; }
+.env-val{ font-size:.7rem; color:var(--t0); font-family:var(--fm); }
+
+/* ── Main ── */
+.main{ padding:40px 36px; max-width:900px; }
+@media(max-width:600px){ .main{ padding:24px 16px; } }
+
+.page{ display:none; }
+.page.on{ display:block; animation:fadeIn .3s ease; }
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.pg-header{ margin-bottom:36px; }
+.pg-title{
+  font-family:var(--fd); font-size:clamp(1.8rem,4vw,2.6rem); font-weight:600;
+  background:linear-gradient(135deg,var(--au0),var(--au1));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  letter-spacing:-.02em; line-height:1.1; margin-bottom:6px;
+}
+.pg-sub{ font-size:.82rem; color:var(--t2); line-height:1.6; }
+
+/* ── Cards ── */
+.card{
+  background:var(--b2); border:1px solid var(--brd); border-radius:16px;
+  overflow:hidden; margin-bottom:20px;
+  box-shadow:0 4px 24px rgba(0,0,0,.5);
+}
+.card::before{
+  content:''; display:block; height:1px;
+  background:linear-gradient(90deg,transparent,var(--au4),var(--au3),var(--au4),transparent);
+}
+.card-head{
+  padding:18px 24px 16px; border-bottom:1px solid var(--brd);
+  display:flex; align-items:center; gap:12px;
+}
+.card-ico{ font-size:1.2rem; }
+.card-title{ font-size:.9rem; font-weight:700; color:var(--t0); }
+.card-desc{ font-size:.72rem; color:var(--t2); margin-top:1px; }
+.card-body{ padding:20px 24px; }
+.card-actions{
+  padding:14px 24px; border-top:1px solid var(--brd);
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:rgba(0,0,0,.2);
+}
+
+/* ── Form elements ── */
+.fg{ margin-bottom:16px; }
+.fg label{
+  display:block; font-size:.62rem; font-weight:700; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--t2); margin-bottom:7px;
+}
+.fg-hint{ font-size:.67rem; color:var(--t3); margin-top:4px; line-height:1.5; }
+.fg input, .fg select, .fg textarea{
+  width:100%; background:var(--b3); border:1px solid var(--brd); border-radius:10px;
+  padding:10px 14px; font-family:var(--fu); font-size:.86rem; color:var(--t0);
+  outline:none; transition:all .2s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus{
+  border-color:var(--au2); box-shadow:0 0 0 3px rgba(212,167,44,.13); background:var(--b2);
+}
+.fg input::placeholder, .fg textarea::placeholder{ color:var(--t3); }
+.fg select option{ background:var(--b3); }
+.fg textarea{ resize:vertical; min-height:80px; }
+.fg .mono{ font-family:var(--fm); font-size:.82rem; letter-spacing:.01em; }
+.fg-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(max-width:500px){ .fg-row{ grid-template-columns:1fr; } }
+
+/* ── Buttons ── */
+.btn{
+  padding:9px 20px; border:none; border-radius:9px;
+  font-family:var(--fu); font-size:.82rem; font-weight:600; cursor:pointer;
+  display:inline-flex; align-items:center; gap:7px; transition:all .25s;
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--au2),var(--au3)); color:var(--b0);
+  box-shadow:0 3px 14px rgba(212,167,44,.35);
+}
+.btn-gold:hover{ transform:translateY(-1px); box-shadow:0 6px 22px rgba(212,167,44,.5); }
+.btn-ghost{ background:var(--b3); color:var(--t1); border:1px solid var(--brd); }
+.btn-ghost:hover{ border-color:var(--brd2); color:var(--au1); }
+.btn-coral{ background:rgba(224,93,75,.12); color:var(--coral); border:1px solid var(--coralb); }
+.btn-coral:hover{ background:rgba(224,93,75,.2); }
+.btn-jade{ background:rgba(15,168,120,.1); color:var(--jade); border:1px solid var(--jadeb); }
+.btn-jade:hover{ background:rgba(15,168,120,.18); }
+.btn-sm{ padding:6px 14px; font-size:.75rem; }
+
+/* ── Status badges ── */
+.badge{
+  display:inline-flex; align-items:center; gap:6px; padding:5px 11px;
+  border-radius:var(--rt); font-size:.7rem; font-weight:600;
+}
+.badge-ok  { background:rgba(15,168,120,.12); border:1px solid var(--jadeb); color:var(--jade); }
+.badge-err { background:rgba(224,93,75,.12); border:1px solid var(--coralb); color:var(--coral); }
+.badge-warn{ background:rgba(212,167,44,.1); border:1px solid rgba(212,167,44,.3); color:var(--au1); }
+.badge-neu { background:var(--b3); border:1px solid var(--brd); color:var(--t2); }
+.dot-status{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+/* ── Key/value display ── */
+.kv-list{ display:flex; flex-direction:column; gap:10px; }
+.kv{
+  display:flex; align-items:flex-start; gap:14px; padding:10px 14px;
+  background:var(--b3); border:1px solid var(--brd); border-radius:9px;
+}
+.kv-key{ font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--t2); flex-shrink:0; width:130px; padding-top:1px; }
+.kv-val{ font-family:var(--fm); font-size:.8rem; color:var(--t0); word-break:break-all; flex:1; }
+.kv-val.masked{ filter:blur(4px); cursor:pointer; user-select:none; transition:.2s; }
+.kv-val.masked:hover{ filter:blur(0); }
+
+/* ── Checklist ── */
+.checklist{ display:flex; flex-direction:column; gap:8px; }
+.check-item{
+  display:flex; align-items:center; gap:12px; padding:11px 16px;
+  background:var(--b3); border:1px solid var(--brd); border-radius:10px;
+}
+.check-ico{ font-size:1rem; flex-shrink:0; }
+.check-text{ flex:1; }
+.check-name{ font-size:.82rem; font-weight:600; color:var(--t0); }
+.check-detail{ font-size:.68rem; color:var(--t2); margin-top:1px; }
+.check-status{ flex-shrink:0; }
+
+/* ── Alert ── */
+.alert{
+  display:flex; align-items:flex-start; gap:11px; padding:13px 16px;
+  border-radius:10px; font-size:.78rem; line-height:1.6; margin-bottom:16px;
+}
+.alert-warn{ background:rgba(212,167,44,.08); border:1px solid rgba(212,167,44,.22); color:var(--au1); }
+.alert-jade{ background:rgba(15,168,120,.07); border:1px solid var(--jadeb); color:#86efce; }
+.alert-coral{ background:rgba(224,93,75,.07); border:1px solid var(--coralb); color:#fdb3a8; }
+.alert-ico{ font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+
+/* ── Code block ── */
+.code-block{
+  background:var(--b1); border:1px solid var(--brd); border-radius:10px;
+  padding:14px 16px; font-family:var(--fm); font-size:.77rem; color:#7dd3fc;
+  overflow-x:auto; line-height:1.7; position:relative;
+}
+.code-block .cm{ color:var(--t2); }
+.code-block .ck{ color:#c4b5fd; }
+.code-block .cv{ color:#86efac; }
+.code-block .cs{ color:#fca5a5; }
+.copy-code{
+  position:absolute; top:10px; right:10px;
+  background:var(--b3); border:1px solid var(--brd); border-radius:7px;
+  padding:4px 10px; font-family:var(--fu); font-size:.65rem; color:var(--t2);
+  cursor:pointer; transition:.2s;
+}
+.copy-code:hover{ color:var(--au1); border-color:var(--brd2); }
+
+/* ── Steps ── */
+.steps{ display:flex; flex-direction:column; gap:0; }
+.step{
+  display:flex; gap:16px; padding-bottom:24px; position:relative;
+}
+.step:last-child{ padding-bottom:0; }
+.step::before{
+  content:''; position:absolute; left:16px; top:32px; bottom:0; width:1px;
+  background:linear-gradient(to bottom, var(--brd2), transparent);
+}
+.step:last-child::before{ display:none; }
+.step-num{
+  width:33px; height:33px; border-radius:50%; flex-shrink:0;
+  background:linear-gradient(135deg,var(--au3),var(--au2));
+  display:flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:700; color:var(--b0);
+  box-shadow:0 3px 12px rgba(212,167,44,.3);
+}
+.step-content{ flex:1; padding-top:6px; }
+.step-title{ font-size:.88rem; font-weight:700; color:var(--t0); margin-bottom:5px; }
+.step-desc{ font-size:.76rem; color:var(--t2); line-height:1.65; }
+
+/* ── Toast ── */
+.toast{
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(120px);
+  background:var(--b3); color:var(--t0);
+  padding:10px 20px; border-radius:var(--rt);
+  font-size:.8rem; font-weight:500; z-index:8000; opacity:0;
+  transition:all .4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:var(--sh3); display:flex; align-items:center; gap:8px;
+  border:1px solid var(--brd2);
+}
+.toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── Mobile nav ── */
+.mobile-nav{
+  display:none; position:sticky; top:0; z-index:200;
+  background:rgba(5,4,8,.95); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--brd); padding:12px 16px;
+  align-items:center; gap:12px;
+}
+@media(max-width:860px){ .mobile-nav{ display:flex; } }
+.mn-logo{ display:flex; align-items:center; gap:8px; }
+.mn-gem{ width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg,var(--au3),var(--au2)); display:flex; align-items:center; justify-content:center; font-size:.75rem; }
+.mn-name{ font-family:var(--fd); font-size:.95rem; font-weight:600; background:linear-gradient(135deg,var(--au0),var(--au1)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.mn-sel{ flex:1; background:var(--b2); border:1px solid var(--brd); border-radius:8px; padding:7px 11px; font-family:var(--fu); font-size:.78rem; color:var(--t0); outline:none; }
+</style>
+</head>
+<body>
+
+<!-- Mobile nav -->
+<div class="mobile-nav">
+  <div class="mn-logo">
+    <div class="mn-gem">💎</div>
+    <span class="mn-name">Recompensapp</span>
+  </div>
+  <select class="mn-sel" onchange="goPage(this.value)">
+    <option value="pg-inicio">🏠 Inicio</option>
+    <option value="pg-supabase">🗄️ Supabase</option>
+    <option value="pg-mp">💳 Mercado Pago</option>
+    <option value="pg-app">⚙️ App Config</option>
+    <option value="pg-deploy">🚀 Deploy</option>
+    <option value="pg-env">📋 Variables .env</option>
+  </select>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-gem">💎</div>
+      <div>
+        <div class="sb-name">Recompensapp</div>
+        <div class="sb-sub">Panel de Configuración</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section">General</div>
+      <a class="sb-item active" onclick="goPage('pg-inicio')">
+        <span class="sb-icon">🏠</span> Inicio
+      </a>
+
+      <div class="sb-section">Bases de Datos</div>
+      <a class="sb-item" onclick="goPage('pg-supabase')">
+        <span class="sb-icon">🗄️</span> Supabase
+      </a>
+
+      <div class="sb-section">Pagos</div>
+      <a class="sb-item" onclick="goPage('pg-mp')">
+        <span class="sb-icon">💳</span> Mercado Pago
+      </a>
+
+      <div class="sb-section">Configuración</div>
+      <a class="sb-item" onclick="goPage('pg-app')">
+        <span class="sb-icon">⚙️</span> App Config
+      </a>
+      <a class="sb-item" onclick="goPage('pg-deploy')">
+        <span class="sb-icon">🚀</span> Deploy
+      </a>
+      <a class="sb-item" onclick="goPage('pg-env')">
+        <span class="sb-icon">📋</span> Variables .env
+      </a>
+    </nav>
+
+    <div class="sb-status">
+      <div class="sb-env">
+        <div class="env-dot" id="env-dot"></div>
+        <div class="env-info">
+          <div class="env-lbl">Estado</div>
+          <div class="env-val" id="env-txt">Sin configurar</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- ═══════════════ INICIO ═══════════════ -->
+    <div class="page on" id="pg-inicio">
+      <div class="pg-header">
+        <div class="pg-title">Panel de Configuración</div>
+        <div class="pg-sub">Configurá todas las conexiones antes de desplegar Recompensapp a producción.</div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-ico">⚠️</span>
+        <div>
+          <strong>Antes de producción:</strong> Completá Supabase, Mercado Pago y las variables de entorno.
+          Luego ejecutá el schema SQL en tu proyecto de Supabase.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">✅</span>
+          <div>
+            <div class="card-title">Checklist de producción</div>
+            <div class="card-desc">Estado de cada conexión</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="checklist">
+            <div class="check-item">
+              <span class="check-ico">🗄️</span>
+              <div class="check-text">
+                <div class="check-name">Supabase — URL del proyecto</div>
+                <div class="check-detail" id="ck-sb-url">No configurado</div>
+              </div>
+              <div class="check-status" id="ck-sb-url-st"><span class="badge badge-err"><span class="dot-status"></span>Pendiente</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">🔑</span>
+              <div class="check-text">
+                <div class="check-name">Supabase — Anon Key</div>
+                <div class="check-detail" id="ck-sb-anon">No configurado</div>
+              </div>
+              <div class="check-status" id="ck-sb-anon-st"><span class="badge badge-err"><span class="dot-status"></span>Pendiente</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">🔐</span>
+              <div class="check-text">
+                <div class="check-name">Supabase — Service Role Key</div>
+                <div class="check-detail" id="ck-sb-svc">No configurado</div>
+              </div>
+              <div class="check-status" id="ck-sb-svc-st"><span class="badge badge-err"><span class="dot-status"></span>Pendiente</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">💳</span>
+              <div class="check-text">
+                <div class="check-name">Mercado Pago — Public Key</div>
+                <div class="check-detail" id="ck-mp-pk">No configurado</div>
+              </div>
+              <div class="check-status" id="ck-mp-pk-st"><span class="badge badge-err"><span class="dot-status"></span>Pendiente</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">💰</span>
+              <div class="check-text">
+                <div class="check-name">Mercado Pago — Access Token</div>
+                <div class="check-detail" id="ck-mp-at">No configurado</div>
+              </div>
+              <div class="check-status" id="ck-mp-at-st"><span class="badge badge-err"><span class="dot-status"></span>Pendiente</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">🌐</span>
+              <div class="check-text">
+                <div class="check-name">URL de producción (app)</div>
+                <div class="check-detail" id="ck-app-url">No configurado</div>
+              </div>
+              <div class="check-status" id="ck-app-url-st"><span class="badge badge-err"><span class="dot-status"></span>Pendiente</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-gold" onclick="exportEnv()">📋 Exportar .env</button>
+          <button class="btn btn-ghost" onclick="clearAll()">🗑 Limpiar todo</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">📐</span>
+          <div>
+            <div class="card-title">Arquitectura del sistema</div>
+            <div class="card-desc">Cómo se conectan los servicios</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Cliente (Browser / Mobile)</div>
+                <div class="step-desc">La app HTML carga en el navegador del usuario. Se conecta a Supabase via <code>supabase-js</code> para auth, lectura/escritura de reseñas y perfiles.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Supabase (Backend as a Service)</div>
+                <div class="step-desc">Provee base de datos PostgreSQL, autenticación (email/password + social), storage de imágenes y Row Level Security. El schema SQL define las tablas <code>profiles</code>, <code>reviews</code>, <code>payments</code>, <code>webhook_events</code>.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">Mercado Pago (Pagos)</div>
+                <div class="step-desc">El Brick de MP corre en el cliente. Al confirmarse el pago, el webhook de MP llama al endpoint backend que registra el pago en Supabase y actualiza la reseña.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">Hosting (Vercel / Netlify / Supabase Edge)</div>
+                <div class="step-desc">La app estática se sirve desde un CDN. Las Edge Functions o Serverless Functions manejan el webhook de MP y operaciones que requieren la <code>service_role</code> key.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════ SUPABASE ═══════════════ -->
+    <div class="page" id="pg-supabase">
+      <div class="pg-header">
+        <div class="pg-title">Supabase</div>
+        <div class="pg-sub">Conexión a la base de datos PostgreSQL y servicios de auth.</div>
+      </div>
+
+      <div class="alert alert-jade">
+        <span class="alert-ico">💡</span>
+        <div>Encontrás las keys en tu proyecto Supabase → <strong>Settings → API</strong>. Nunca expongas la <em>service_role</em> key en el cliente.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🗄️</span>
+          <div>
+            <div class="card-title">Credenciales del proyecto</div>
+            <div class="card-desc">Dashboard → Settings → API</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="fg">
+            <label>URL del proyecto</label>
+            <input type="url" id="sb_url" class="mono" placeholder="https://xxxxxxxxxxxx.supabase.co" oninput="autoSave()">
+            <div class="fg-hint">Ejemplo: https://abcdefghijkl.supabase.co</div>
+          </div>
+          <div class="fg">
+            <label>Anon / Public Key <span style="color:var(--jade);font-size:.6rem;">CLIENTE ✅</span></label>
+            <input type="text" id="sb_anon" class="mono" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="autoSave()">
+            <div class="fg-hint">Usada en el browser. Segura para exponer (controlada por RLS).</div>
+          </div>
+          <div class="fg">
+            <label>Service Role Key <span style="color:var(--coral);font-size:.6rem;">🔴 SOLO BACKEND</span></label>
+            <input type="password" id="sb_service" class="mono" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="autoSave()">
+            <div class="fg-hint">⚠️ Nunca incluir en el frontend. Solo en variables de entorno del servidor / Edge Functions.</div>
+          </div>
+          <div class="fg-row">
+            <div class="fg">
+              <label>Nombre del proyecto</label>
+              <input type="text" id="sb_project" placeholder="recompensapp-prod" oninput="autoSave()">
+            </div>
+            <div class="fg">
+              <label>Región</label>
+              <select id="sb_region" onchange="autoSave()">
+                <option value="">Seleccioná región</option>
+                <option value="sa-east-1">🇧🇷 South America (São Paulo)</option>
+                <option value="us-east-1">🇺🇸 US East (N. Virginia)</option>
+                <option value="us-west-1">🇺🇸 US West (Oregon)</option>
+                <option value="eu-west-1">🇪🇺 Europe (Ireland)</option>
+                <option value="ap-southeast-1">🌏 Asia Pacific (Singapore)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-gold" onclick="testSupabase()">🔌 Probar conexión</button>
+          <button class="btn btn-ghost" onclick="openSupabase()">🔗 Abrir dashboard</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">📦</span>
+          <div>
+            <div class="card-title">Instalación del cliente JS</div>
+            <div class="card-desc">Agregar supabase-js a tu proyecto</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Instalar el SDK</div>
+                <div class="code-block" style="margin-top:8px">
+                  <button class="copy-code" onclick="copyCode(this)">Copiar</button>
+                  <span class="cm"># NPM</span><br>
+                  npm install @supabase/supabase-js<br><br>
+                  <span class="cm"># O via CDN (para HTML puro)</span><br>
+                  <span class="ck">&lt;script</span> <span class="cv">src</span>=<span class="cs">"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"</span><span class="ck">&gt;&lt;/script&gt;</span>
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Inicializar el cliente</div>
+                <div class="code-block" style="margin-top:8px">
+                  <button class="copy-code" onclick="copyCode(this)">Copiar</button>
+                  <span class="cm">// supabase.js</span><br>
+                  <span class="ck">import</span> { createClient } <span class="ck">from</span> <span class="cs">'@supabase/supabase-js'</span><br><br>
+                  <span class="ck">const</span> supabase = createClient(<br>
+                  &nbsp;&nbsp;<span class="cv">process.env.SUPABASE_URL</span>,<br>
+                  &nbsp;&nbsp;<span class="cv">process.env.SUPABASE_ANON_KEY</span><br>
+                  )<br><br>
+                  <span class="ck">export default</span> supabase
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">Ejecutar el schema SQL</div>
+                <div class="step-desc">Ir a Supabase Dashboard → SQL Editor → New Query. Pegar el contenido del archivo <code>recompensapp_supabase_schema.sql</code> y ejecutar.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🔐</span>
+          <div>
+            <div class="card-title">Proveedores de Auth</div>
+            <div class="card-desc">Activar en Supabase → Auth → Providers</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="checklist">
+            <div class="check-item">
+              <span class="check-ico">📧</span>
+              <div class="check-text">
+                <div class="check-name">Email / Password</div>
+                <div class="check-detail">Activado por defecto. Configurar confirmación de email.</div>
+              </div>
+              <div class="check-status"><span class="badge badge-jade">Activar</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">🔵</span>
+              <div class="check-text">
+                <div class="check-name">Google OAuth</div>
+                <div class="check-detail">Requiere Client ID y Secret de Google Cloud Console.</div>
+              </div>
+              <div class="check-status"><span class="badge badge-neu">Opcional</span></div>
+            </div>
+            <div class="check-item">
+              <span class="check-ico">🐦</span>
+              <div class="check-text">
+                <div class="check-name">Twitter / X OAuth</div>
+                <div class="check-detail">Requiere API Key y Secret de Twitter Developer.</div>
+              </div>
+              <div class="check-status"><span class="badge badge-neu">Opcional</span></div>
+            </div>
+          </div>
+          <div class="fg" style="margin-top:16px">
+            <label>Site URL (Supabase → Auth → URL Configuration)</label>
+            <input type="url" id="sb_site_url" class="mono" placeholder="https://recompensapp.app" oninput="autoSave()">
+            <div class="fg-hint">URL base de tu app en producción. Usada para los redirects de auth.</div>
+          </div>
+          <div class="fg">
+            <label>Redirect URL adicional</label>
+            <input type="url" id="sb_redirect_url" class="mono" placeholder="https://recompensapp.app/auth/callback" oninput="autoSave()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════ MERCADO PAGO ═══════════════ -->
+    <div class="page" id="pg-mp">
+      <div class="pg-header">
+        <div class="pg-title">Mercado Pago</div>
+        <div class="pg-sub">Credenciales para el procesamiento de pagos y recompensas.</div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-ico">⚠️</span>
+        <div>Usá credenciales de <strong>Sandbox</strong> para pruebas y <strong>Producción</strong> solo cuando la app esté lista para recibir pagos reales.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">💳</span>
+          <div>
+            <div class="card-title">Credenciales de la app</div>
+            <div class="card-desc">Mercado Pago Developers → Tu aplicación → Credenciales</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="fg">
+            <label>Entorno</label>
+            <select id="mp_mode" onchange="autoSave()">
+              <option value="sandbox">🧪 Sandbox (pruebas)</option>
+              <option value="production">🚀 Producción</option>
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>Public Key <span style="color:var(--jade);font-size:.6rem;">CLIENTE ✅</span></label>
+            <input type="text" id="mp_pk" class="mono" placeholder="APP_USR-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="autoSave()">
+            <div class="fg-hint">Usada en el frontend para inicializar el Brick de pago.</div>
+          </div>
+          <div class="fg">
+            <label>Access Token <span style="color:var(--coral);font-size:.6rem;">🔴 SOLO BACKEND</span></label>
+            <input type="password" id="mp_at" class="mono" placeholder="APP_USR-0000000000000000-000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxx-000000000" oninput="autoSave()">
+            <div class="fg-hint">⚠️ Nunca en el frontend. Solo en variables de entorno del servidor para confirmar/reembolsar pagos.</div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-gold" onclick="openMP()">🔗 Abrir Developers MP</button>
+          <button class="btn btn-ghost btn-sm" onclick="testCredentials()">🧪 Verificar formato</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🔔</span>
+          <div>
+            <div class="card-title">Webhook de Notificaciones</div>
+            <div class="card-desc">IPN — Instant Payment Notifications</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="fg">
+            <label>URL del webhook (tu backend)</label>
+            <input type="url" id="mp_webhook" class="mono" placeholder="https://recompensapp.app/api/mp-webhook" oninput="autoSave()">
+            <div class="fg-hint">Configurar en MP Developers → Tu app → Webhooks → Agregar URL. Activar eventos: <code>payment</code>.</div>
+          </div>
+          <div class="fg">
+            <label>Secret de firma (MP Webhook Signature)</label>
+            <input type="password" id="mp_secret" class="mono" placeholder="tu-secret-de-firma" oninput="autoSave()">
+            <div class="fg-hint">Usado para validar que los webhooks vienen de Mercado Pago. Configurar en el dashboard de MP.</div>
+          </div>
+
+          <div class="alert alert-jade" style="margin-top:8px;margin-bottom:0">
+            <span class="alert-ico">💡</span>
+            <div>
+              <strong>Lógica del webhook:</strong> Al recibir un evento <code>payment.updated</code> con status <code>approved</code>, buscar la reseña asociada por <code>external_reference</code>, actualizar su <code>amount</code> y crear un registro en la tabla <code>payments</code>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🧪</span>
+          <div>
+            <div class="card-title">Tarjetas de prueba (Sandbox)</div>
+            <div class="card-desc">Para testing sin pagos reales</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="kv-list">
+            <div class="kv"><span class="kv-key">Visa ✅</span><span class="kv-val">4509 9535 6623 3704 — Cualquier fecha futura — CVV: 123</span></div>
+            <div class="kv"><span class="kv-key">Mastercard ✅</span><span class="kv-val">5031 7557 3453 0604 — Cualquier fecha futura — CVV: 123</span></div>
+            <div class="kv"><span class="kv-key">Rechazada ❌</span><span class="kv-val">4000 0000 0000 0002 — Para testear errores</span></div>
+            <div class="kv"><span class="kv-key">DNI (payer)</span><span class="kv-val">12345678</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════ APP CONFIG ═══════════════ -->
+    <div class="page" id="pg-app">
+      <div class="pg-header">
+        <div class="pg-title">App Config</div>
+        <div class="pg-sub">Configuraciones generales de la aplicación.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🌐</span>
+          <div>
+            <div class="card-title">URLs de la aplicación</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="fg">
+            <label>URL de producción</label>
+            <input type="url" id="app_url" class="mono" placeholder="https://recompensapp.app" oninput="autoSave()">
+          </div>
+          <div class="fg">
+            <label>URL de staging (opcional)</label>
+            <input type="url" id="app_staging" class="mono" placeholder="https://staging.recompensapp.app" oninput="autoSave()">
+          </div>
+          <div class="fg">
+            <label>CORS Allowed Origins</label>
+            <input type="text" id="app_cors" class="mono" placeholder="https://recompensapp.app,https://www.recompensapp.app" oninput="autoSave()">
+            <div class="fg-hint">Separados por coma. Configurar también en Supabase → Auth → URL Configuration.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">📧</span>
+          <div>
+            <div class="card-title">Email (transaccional)</div>
+            <div class="card-desc">Para notificaciones y confirmaciones</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="fg-row">
+            <div class="fg">
+              <label>Proveedor</label>
+              <select id="email_prov" onchange="autoSave()">
+                <option value="supabase">Supabase (incluido)</option>
+                <option value="resend">Resend</option>
+                <option value="sendgrid">SendGrid</option>
+                <option value="ses">AWS SES</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Email remitente</label>
+              <input type="email" id="email_from" placeholder="hola@recompensapp.app" oninput="autoSave()">
+            </div>
+          </div>
+          <div class="fg">
+            <label>API Key del proveedor de email</label>
+            <input type="password" id="email_key" class="mono" placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx" oninput="autoSave()">
+            <div class="fg-hint">Configurar en Supabase → Auth → SMTP Settings si usás proveedor externo.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🔒</span>
+          <div>
+            <div class="card-title">Seguridad</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="fg">
+            <label>JWT Secret (para firmar tokens propios)</label>
+            <input type="password" id="jwt_secret" class="mono" placeholder="genera-uno-con-openssl-rand-base64-32" oninput="autoSave()">
+            <div class="fg-hint">Solo si usás tokens JWT propios además de Supabase Auth. Generá uno con: <code>openssl rand -base64 32</code></div>
+          </div>
+          <div class="fg">
+            <label>Encryption Key (datos sensibles en BD)</label>
+            <input type="password" id="enc_key" class="mono" placeholder="32-bytes-hex-key" oninput="autoSave()">
+            <div class="fg-hint">Para cifrar las keys de MP almacenadas en <code>profiles</code>. Generá con: <code>openssl rand -hex 32</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════ DEPLOY ═══════════════ -->
+    <div class="page" id="pg-deploy">
+      <div class="pg-header">
+        <div class="pg-title">Deploy</div>
+        <div class="pg-sub">Guía paso a paso para desplegar Recompensapp.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🗄️</span>
+          <div>
+            <div class="card-title">1. Crear proyecto Supabase</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Crear proyecto</div>
+                <div class="step-desc">Ir a <a href="https://supabase.com" target="_blank" style="color:var(--au1)">supabase.com</a> → New Project. Elegir región <strong>South America (São Paulo)</strong> para menor latencia desde Argentina.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Ejecutar el Schema SQL</div>
+                <div class="step-desc">SQL Editor → New Query → pegar <code>recompensapp_supabase_schema.sql</code> → Run. Verificar que se crearon las 6 tablas y las vistas.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">Configurar Auth</div>
+                <div class="step-desc">Auth → URL Configuration → agregar la URL de producción. Auth → Providers → habilitar Email y los OAuth deseados.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">Crear bucket de storage</div>
+                <div class="step-desc">Storage → New Bucket → nombre: <code>profile-media</code> → Public: ✅. Las policies de RLS están en el schema SQL.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🚀</span>
+          <div>
+            <div class="card-title">2. Deploy en Vercel (recomendado)</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-title">Subir código a GitHub</div>
+                <div class="code-block" style="margin-top:8px">
+                  <button class="copy-code" onclick="copyCode(this)">Copiar</button>
+                  git init<br>
+                  git add .<br>
+                  git commit -m <span class="cs">"chore: initial commit"</span><br>
+                  git remote add origin https://github.com/tu-usuario/recompensapp.git<br>
+                  git push -u origin main
+                </div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-title">Importar en Vercel</div>
+                <div class="step-desc"><a href="https://vercel.com/new" target="_blank" style="color:var(--au1)">vercel.com/new</a> → Import Git Repository → Seleccionar el repo → Framework: Other (o Next.js si migrás).</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-title">Configurar variables de entorno</div>
+                <div class="step-desc">En Vercel → Settings → Environment Variables → agregar todas las variables del archivo <code>.env</code> generado desde este panel.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-title">Configurar dominio</div>
+                <div class="step-desc">Vercel → Domains → agregar <code>recompensapp.app</code>. Actualizar los DNS en tu registrar apuntando a Vercel.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🔔</span>
+          <div>
+            <div class="card-title">3. Configurar Webhook de MP en producción</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="code-block">
+            <button class="copy-code" onclick="copyCode(this)">Copiar</button>
+            <span class="cm">// api/mp-webhook.js (Vercel Serverless Function)</span><br>
+            <span class="ck">import</span> { createClient } <span class="ck">from</span> <span class="cs">'@supabase/supabase-js'</span><br><br>
+            <span class="ck">const</span> supabase = createClient(<br>
+            &nbsp;&nbsp;process.env.SUPABASE_URL,<br>
+            &nbsp;&nbsp;process.env.SUPABASE_SERVICE_ROLE_KEY<br>
+            )<br><br>
+            <span class="ck">export default async function</span> handler(req, res) {<br>
+            &nbsp;&nbsp;<span class="ck">if</span> (req.method !== <span class="cs">'POST'</span>) <span class="ck">return</span> res.status(405).end()<br><br>
+            &nbsp;&nbsp;<span class="ck">const</span> { type, data } = req.body<br>
+            &nbsp;&nbsp;<span class="cm">// Guardar evento para idempotencia</span><br>
+            &nbsp;&nbsp;<span class="ck">await</span> supabase.from(<span class="cs">'webhook_events'</span>).insert({<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;event_type: type,<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;mp_event_id: data?.id?.toString(),<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;payload: req.body<br>
+            &nbsp;&nbsp;})<br><br>
+            &nbsp;&nbsp;<span class="cm">// Procesar pago aprobado</span><br>
+            &nbsp;&nbsp;<span class="ck">if</span> (type === <span class="cs">'payment'</span> && data?.id) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// Consultar MP API y actualizar payments + reviews</span><br>
+            &nbsp;&nbsp;}<br>
+            &nbsp;&nbsp;res.status(200).json({ ok: <span class="cv">true</span> })<br>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ═══════════════ ENV VARS ═══════════════ -->
+    <div class="page" id="pg-env">
+      <div class="pg-header">
+        <div class="pg-title">Variables de Entorno</div>
+        <div class="pg-sub">Archivo <code>.env</code> generado con tus credenciales.</div>
+      </div>
+
+      <div class="alert alert-coral">
+        <span class="alert-ico">🔴</span>
+        <div><strong>NUNCA</strong> subas el archivo <code>.env</code> a GitHub. Agregarlo al <code>.gitignore</code>. Configurar las variables directamente en Vercel/Netlify.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">📋</span>
+          <div>
+            <div class="card-title">Archivo .env generado</div>
+            <div class="card-desc">Basado en las credenciales ingresadas en este panel</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="code-block" id="env-preview" style="min-height:200px;white-space:pre;line-height:1.9">
+            <button class="copy-code" onclick="copyEnvFile()">Copiar todo</button>
+            <span class="cm"># Completá las credenciales en el panel para generar este archivo</span>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn btn-gold" onclick="downloadEnv()">⬇️ Descargar .env</button>
+          <button class="btn btn-ghost" onclick="copyEnvFile()">📋 Copiar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-ico">🙈</span>
+          <div>
+            <div class="card-title">.gitignore recomendado</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="code-block">
+            <button class="copy-code" onclick="copyCode(this)">Copiar</button>
+            <span class="cm"># Entorno</span><br>
+            .env<br>
+            .env.local<br>
+            .env.production<br>
+            .env.*.local<br><br>
+            <span class="cm"># Dependencias</span><br>
+            node_modules/<br><br>
+            <span class="cm"># Build</span><br>
+            .next/<br>
+            dist/<br>
+            build/<br><br>
+            <span class="cm"># Misc</span><br>
+            .DS_Store<br>
+            *.log
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+const state = {};
+const KEYS = [
+  'sb_url','sb_anon','sb_service','sb_project','sb_region','sb_site_url','sb_redirect_url',
+  'mp_mode','mp_pk','mp_at','mp_webhook','mp_secret',
+  'app_url','app_staging','app_cors','email_prov','email_from','email_key',
+  'jwt_secret','enc_key'
+];
+
+// ── Load / Save ──
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('rca_admin_cfg') || '{}');
+    KEYS.forEach(k => {
+      const el = document.getElementById(k);
+      if (!el || !saved[k]) return;
+      el.value = saved[k];
+    });
+  } catch(e) {}
+  updateChecklist();
+  generateEnv();
+  updateGlobalStatus();
+}
+
+function autoSave() {
+  const data = {};
+  KEYS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) data[k] = el.value;
+  });
+  try { localStorage.setItem('rca_admin_cfg', JSON.stringify(data)); } catch(e) {}
+  updateChecklist();
+  generateEnv();
+  updateGlobalStatus();
+}
+
+// ── Navigation ──
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const page = document.getElementById(id);
+  if (page) page.classList.add('on');
+  document.querySelectorAll('.sb-item').forEach(i => {
+    if (i.getAttribute('onclick')?.includes(id)) i.classList.add('active');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Checklist update ──
+function setCheck(id, stId, ok, label) {
+  const el = document.getElementById(id);
+  const st = document.getElementById(stId);
+  if (el) el.textContent = label;
+  if (st) st.innerHTML = ok
+    ? `<span class="badge badge-ok"><span class="dot-status"></span>OK</span>`
+    : `<span class="badge badge-err"><span class="dot-status"></span>Pendiente</span>`;
+}
+
+function updateChecklist() {
+  const sbUrl = v('sb_url'); const sbAnon = v('sb_anon'); const sbSvc = v('sb_service');
+  const mpPk = v('mp_pk'); const mpAt = v('mp_at'); const appUrl = v('app_url');
+
+  setCheck('ck-sb-url', 'ck-sb-url-st', !!sbUrl, sbUrl ? maskUrl(sbUrl) : 'No configurado');
+  setCheck('ck-sb-anon', 'ck-sb-anon-st', !!sbAnon, sbAnon ? maskKey(sbAnon) : 'No configurado');
+  setCheck('ck-sb-svc', 'ck-sb-svc-st', !!sbSvc, sbSvc ? maskKey(sbSvc) : 'No configurado');
+  setCheck('ck-mp-pk', 'ck-mp-pk-st', !!mpPk, mpPk ? maskKey(mpPk) : 'No configurado');
+  setCheck('ck-mp-at', 'ck-mp-at-st', !!mpAt, mpAt ? maskKey(mpAt) : 'No configurado');
+  setCheck('ck-app-url', 'ck-app-url-st', !!appUrl, appUrl || 'No configurado');
+}
+
+function updateGlobalStatus() {
+  const allOk = ['sb_url','sb_anon','sb_service','mp_pk','mp_at','app_url'].every(k => v(k));
+  const dot = document.getElementById('env-dot');
+  const txt = document.getElementById('env-txt');
+  if (allOk) {
+    dot.classList.add('ok');
+    txt.textContent = 'Listo para producción';
+  } else {
+    dot.classList.remove('ok');
+    const done = ['sb_url','sb_anon','sb_service','mp_pk','mp_at','app_url'].filter(k => v(k)).length;
+    txt.textContent = `${done}/6 configurados`;
+  }
+}
+
+// ── .env generation ──
+function generateEnv() {
+  const mode = v('mp_mode') || 'sandbox';
+  const lines = [
+    `# ════════════════════════════════════════`,
+    `# RECOMPENSAPP — Variables de Entorno`,
+    `# Generado: ${new Date().toLocaleString('es-AR')}`,
+    `# ════════════════════════════════════════`,
+    ``,
+    `# ── Supabase ──`,
+    `SUPABASE_URL=${v('sb_url') || 'https://tu-proyecto.supabase.co'}`,
+    `SUPABASE_ANON_KEY=${v('sb_anon') || 'tu-anon-key'}`,
+    `SUPABASE_SERVICE_ROLE_KEY=${v('sb_service') || 'tu-service-role-key'}`,
+    ``,
+    `# ── Mercado Pago ──`,
+    `MP_MODE=${mode}`,
+    `NEXT_PUBLIC_MP_PUBLIC_KEY=${v('mp_pk') || 'APP_USR-tu-public-key'}`,
+    `MP_ACCESS_TOKEN=${v('mp_at') || 'APP_USR-tu-access-token'}`,
+    `MP_WEBHOOK_SECRET=${v('mp_secret') || 'tu-webhook-secret'}`,
+    ``,
+    `# ── App ──`,
+    `NEXT_PUBLIC_APP_URL=${v('app_url') || 'https://recompensapp.app'}`,
+    `NEXT_PUBLIC_APP_STAGING=${v('app_staging') || ''}`,
+    `CORS_ALLOWED_ORIGINS=${v('app_cors') || 'https://recompensapp.app'}`,
+    ``,
+    `# ── Auth ──`,
+    `NEXT_PUBLIC_SUPABASE_SITE_URL=${v('sb_site_url') || v('app_url') || 'https://recompensapp.app'}`,
+    `NEXT_PUBLIC_AUTH_REDIRECT_URL=${v('sb_redirect_url') || ''}`,
+    `JWT_SECRET=${v('jwt_secret') || 'genera-con-openssl-rand-base64-32'}`,
+    `ENCRYPTION_KEY=${v('enc_key') || 'genera-con-openssl-rand-hex-32'}`,
+    ``,
+    `# ── Email ──`,
+    `EMAIL_PROVIDER=${v('email_prov') || 'supabase'}`,
+    `EMAIL_FROM=${v('email_from') || 'hola@recompensapp.app'}`,
+    `EMAIL_API_KEY=${v('email_key') || ''}`,
+  ];
+  const el = document.getElementById('env-preview');
+  if (el) {
+    el.innerHTML = `<button class="copy-code" onclick="copyEnvFile()">Copiar todo</button>` +
+      lines.map(l => {
+        if (l.startsWith('#')) return `<span class="cm">${l}</span>`;
+        if (!l) return '';
+        const [k, ...rest] = l.split('=');
+        const val = rest.join('=');
+        return `<span class="ck">${k}</span>=<span class="cs">${val}</span>`;
+      }).join('\n');
+  }
+}
+
+// ── Actions ──
+function v(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+function maskKey(k) { if (k.length < 8) return '***'; return k.slice(0,6) + '...' + k.slice(-4); }
+function maskUrl(u) { try { return new URL(u).hostname; } catch(e) { return u.slice(0,30); } }
+
+async function testSupabase() {
+  const url = v('sb_url'); const key = v('sb_anon');
+  if (!url || !key) { toast('Ingresá URL y Anon Key primero', '⚠️'); return; }
+  try {
+    const r = await fetch(`${url}/rest/v1/profiles?limit=1`, {
+      headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+    });
+    if (r.ok || r.status === 200 || r.status === 400) {
+      toast('✅ Conexión a Supabase exitosa', '🗄️');
+    } else {
+      toast(`Error ${r.status}: verificá las credenciales`, '❌');
+    }
+  } catch(e) {
+    toast('No se pudo conectar. Verificá la URL.', '❌');
+  }
+}
+
+function testCredentials() {
+  const pk = v('mp_pk'); const at = v('mp_at');
+  const pkOk = pk.startsWith('APP_USR-') || pk.startsWith('TEST-');
+  const atOk = at.startsWith('APP_USR-') || at.startsWith('TEST-');
+  if (!pk && !at) { toast('Ingresá las credenciales primero', '⚠️'); return; }
+  if (pkOk && atOk) toast('✅ Formato de credenciales MP correcto', '💳');
+  else if (!pkOk && pk) toast('⚠️ Public Key: formato inusual (debe empezar con APP_USR- o TEST-)', '⚠️');
+  else if (!atOk && at) toast('⚠️ Access Token: formato inusual', '⚠️');
+}
+
+function openSupabase() {
+  const url = v('sb_url');
+  if (url) {
+    const id = url.replace('https://','').split('.')[0];
+    window.open(`https://supabase.com/dashboard/project/${id}`, '_blank');
+  } else {
+    window.open('https://supabase.com/dashboard', '_blank');
+  }
+}
+
+function openMP() { window.open('https://www.mercadopago.com.ar/developers/panel', '_blank'); }
+
+function exportEnv() { goPage('pg-env'); generateEnv(); toast('Archivo .env listo para descargar', '📋'); }
+
+function copyEnvFile() {
+  const lines = [
+    `# RECOMPENSAPP — Variables de Entorno`,
+    `SUPABASE_URL=${v('sb_url')}`,
+    `SUPABASE_ANON_KEY=${v('sb_anon')}`,
+    `SUPABASE_SERVICE_ROLE_KEY=${v('sb_service')}`,
+    `MP_MODE=${v('mp_mode')||'sandbox'}`,
+    `NEXT_PUBLIC_MP_PUBLIC_KEY=${v('mp_pk')}`,
+    `MP_ACCESS_TOKEN=${v('mp_at')}`,
+    `MP_WEBHOOK_SECRET=${v('mp_secret')}`,
+    `NEXT_PUBLIC_APP_URL=${v('app_url')}`,
+    `CORS_ALLOWED_ORIGINS=${v('app_cors')}`,
+    `JWT_SECRET=${v('jwt_secret')}`,
+    `ENCRYPTION_KEY=${v('enc_key')}`,
+    `EMAIL_FROM=${v('email_from')}`,
+    `EMAIL_API_KEY=${v('email_key')}`,
+  ].join('\n');
+  navigator.clipboard.writeText(lines).then(() => toast('Copiado al portapapeles', '📋')).catch(() => toast('No se pudo copiar', '❌'));
+}
+
+function downloadEnv() {
+  const lines = [
+    `# RECOMPENSAPP — Variables de Entorno — ${new Date().toLocaleDateString('es-AR')}`,
+    `SUPABASE_URL=${v('sb_url')||''}`,
+    `SUPABASE_ANON_KEY=${v('sb_anon')||''}`,
+    `SUPABASE_SERVICE_ROLE_KEY=${v('sb_service')||''}`,
+    `MP_MODE=${v('mp_mode')||'sandbox'}`,
+    `NEXT_PUBLIC_MP_PUBLIC_KEY=${v('mp_pk')||''}`,
+    `MP_ACCESS_TOKEN=${v('mp_at')||''}`,
+    `MP_WEBHOOK_SECRET=${v('mp_secret')||''}`,
+    `NEXT_PUBLIC_APP_URL=${v('app_url')||''}`,
+    `CORS_ALLOWED_ORIGINS=${v('app_cors')||''}`,
+    `JWT_SECRET=${v('jwt_secret')||''}`,
+    `ENCRYPTION_KEY=${v('enc_key')||''}`,
+    `EMAIL_FROM=${v('email_from')||''}`,
+    `EMAIL_API_KEY=${v('email_key')||''}`,
+  ].join('\n');
+  const blob = new Blob([lines], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = '.env'; a.click();
+  toast('Descargando .env', '⬇️');
+}
+
+function clearAll() {
+  if (!confirm('¿Borrar toda la configuración guardada?')) return;
+  localStorage.removeItem('rca_admin_cfg');
+  KEYS.forEach(k => { const el = document.getElementById(k); if(el) el.value = ''; });
+  updateChecklist(); generateEnv(); updateGlobalStatus();
+  toast('Configuración limpiada', '🗑');
+}
+
+function copyCode(btn) {
+  const block = btn.closest('.code-block');
+  const text = block.innerText.replace('Copiar todo\n','').replace('Copiar\n','');
+  navigator.clipboard.writeText(text).then(() => { btn.textContent = '✓ Copiado'; setTimeout(()=>btn.textContent='Copiar',2000); });
+}
+
+function toast(msg, icon='✦') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${icon}</span>${msg}`;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── Init ──
+loadState();
+</script>
+<script src="./assets/runtime-config.js"></script>
+<script src="./assets/admin-runtime.js"></script>
+</body>
+</html>

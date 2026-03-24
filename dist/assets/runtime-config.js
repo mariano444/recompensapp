@@ -1,0 +1,6 @@
+window.RUNTIME_CONFIG = {
+  "NEXT_PUBLIC_SUPABASE_URL": "https://gzptxigymwcvijejvbjm.supabase.co",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "sb_publishable_nMh5ZL67YV2nkGod5DdHLw_YYaHKcvn",
+  "NEXT_PUBLIC_MP_PUBLIC_KEY": "",
+  "NEXT_PUBLIC_APP_URL": "http://localhost:3000"
+};
