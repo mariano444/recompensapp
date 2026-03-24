@@ -1127,7 +1127,7 @@ body::after {
   <div class="modal">
     <h3>Compartir perfil ✦</h3>
     <p>Compartí este link para que tus clientes dejen su reseña con recompensa.</p>
-    <div class="link-box"><div class="link-txt" id="shareLink">https://recompensapp.app/tu-perfil</div><button class="link-cpy" onclick="copyLink()">📋 Copiar</button></div>
+    <div class="link-box"><div class="link-txt" id="shareLink">https://recompensapp.netlify.app/perfil/tu-perfil</div><button class="link-cpy" onclick="copyLink()">📋 Copiar</button></div>
     <div class="share-opts"><button class="sh-opt" onclick="shareWA()">💬 WhatsApp</button><button class="sh-opt" onclick="shareIG()">📸 Instagram</button><button class="sh-opt" onclick="shareNat()">↗ Más</button></div>
     <button class="modal-close" onclick="closeModal()">Cerrar</button>
   </div>
@@ -1543,7 +1543,7 @@ window.RUNTIME_CONFIG=window.RUNTIME_CONFIG||{
   NEXT_PUBLIC_SUPABASE_URL:'https://gzptxigymwcvijejvbjm.supabase.co',
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY:'sb_publishable_nMh5ZL67YV2nkGod5DdHLw_YYaHKcvn',
   NEXT_PUBLIC_MP_PUBLIC_KEY:'',
-  NEXT_PUBLIC_APP_URL:window.location.origin
+  NEXT_PUBLIC_APP_URL:'https://recompensapp.netlify.app'
 };
 const USE_SUPABASE=!!(window.RUNTIME_CONFIG.NEXT_PUBLIC_SUPABASE_URL&&window.RUNTIME_CONFIG.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY);
 const LABELS=['','Podría mejorar 😕','Regular 😐','Buena experiencia 🙂','Muy buena 😊','¡Excelente! 🤩'];
@@ -1569,7 +1569,7 @@ function loadAll(){
   try{
     const r=localStorage.getItem('rca2_rv');if(r)reviews=JSON.parse(r);
     const p=localStorage.getItem('rca2_pf');
-    if(p){const o=JSON.parse(p);if(o.name){document.getElementById('pName').textContent=o.name;document.getElementById('shareLink').textContent=`https://recompensapp.app/${o.name.toLowerCase().replace(/\s+/g,'-')}`;}if(o.desc)document.getElementById('pDesc').textContent=o.desc;if(o.pay)document.getElementById('payLink').value=o.pay;}
+    if(p){const o=JSON.parse(p);if(o.name){document.getElementById('pName').textContent=o.name;document.getElementById('shareLink').textContent=`https://recompensapp.netlify.app/perfil/${o.name.toLowerCase().replace(/\s+/g,'-')}`;}if(o.desc)document.getElementById('pDesc').textContent=o.desc;if(o.pay)document.getElementById('payLink').value=o.pay;}
     const mp=localStorage.getItem('rca2_mp');if(mp){mpCfg=JSON.parse(mp);document.getElementById('mp-pk').value=mpCfg.pk||'';document.getElementById('mp-at').value=mpCfg.at||'';document.getElementById('mp-mode').value=mpCfg.mode||'sandbox';refreshMPSt();}
     const amt=localStorage.getItem('rca2_amt');if(amt){amtCfg=JSON.parse(amt);document.getElementById('cfg-min').value=amtCfg.min;document.getElementById('cfg-sugg').value=amtCfg.sugg.join(', ');}
     const pr=localStorage.getItem('rca2_pr');if(pr){prefs=JSON.parse(pr);document.getElementById('t-amt').checked=prefs.showAmt!==false;document.getElementById('t-demo').checked=prefs.demo!==false;}
@@ -1616,7 +1616,7 @@ function go(v){
 function openModal(){document.getElementById('shareModal').classList.add('open');}
 function closeModal(){document.getElementById('shareModal').classList.remove('open');}
 function copyLink(){navigator.clipboard.writeText(document.getElementById('shareLink').textContent).catch(()=>{});toast('Link copiado','📋');closeModal();}
-function copyRL(){const n=document.getElementById('pName').textContent.trim()||'mi-perfil';navigator.clipboard.writeText(`https://recompensapp.app/${n.toLowerCase().replace(/\s+/g,'-')}`).catch(()=>{});toast('Link copiado','🔗');}
+function copyRL(){const n=document.getElementById('pName').textContent.trim()||'mi-perfil';const baseUrl=(window.RUNTIME_CONFIG&&window.RUNTIME_CONFIG.NEXT_PUBLIC_APP_URL)||window.location.origin;navigator.clipboard.writeText(`${baseUrl.replace(/\/$/,'')}/perfil/${n.toLowerCase().replace(/\s+/g,'-')}`).catch(()=>{});toast('Link copiado','🔗');}
 function shareWA(){const n=document.getElementById('pName').textContent.trim()||'mi perfil';window.open(`https://wa.me/?text=${encodeURIComponent(`¡Mirá mi perfil en Recompensapp y dejá tu reseña! ${document.getElementById('shareLink').textContent}`)}`,'_blank');closeModal();}
 function shareIG(){toast('Copiá el link y pegalo en tu bio de Instagram','📸');closeModal();}
 function shareNat(){if(navigator.share)navigator.share({title:'Recompensapp',url:document.getElementById('shareLink').textContent});else copyLink();closeModal();}
@@ -1860,7 +1860,7 @@ const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isInt
 function initLanding(){document.querySelectorAll('.rev').forEach(el=>observer.observe(el));renderLandingTestis();updateLandingStats();initMotes();}
 
 /* Profile sync */
-document.getElementById('pName').addEventListener('input',()=>{const n=document.getElementById('pName').textContent.trim()||'tu-perfil';const baseUrl=(window.RUNTIME_CONFIG&&window.RUNTIME_CONFIG.NEXT_PUBLIC_APP_URL)||window.location.origin;document.getElementById('shareLink').textContent=`${baseUrl.replace(/\/$/,'')}/?profile=${n.toLowerCase().replace(/\s+/g,'-')}`;saveAll();});
+document.getElementById('pName').addEventListener('input',()=>{const n=document.getElementById('pName').textContent.trim()||'tu-perfil';const baseUrl=(window.RUNTIME_CONFIG&&window.RUNTIME_CONFIG.NEXT_PUBLIC_APP_URL)||window.location.origin;document.getElementById('shareLink').textContent=`${baseUrl.replace(/\/$/,'')}/perfil/${n.toLowerCase().replace(/\s+/g,'-')}`;saveAll();});
 document.getElementById('pDesc').addEventListener('input',saveAll);
 
 /* INIT */
