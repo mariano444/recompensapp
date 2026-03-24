@@ -12,6 +12,7 @@
   const originalSaveAll = typeof saveAll === "function" ? saveAll : function () {};
   const originalLoadAll = typeof loadAll === "function" ? loadAll : function () {};
   const query = new URLSearchParams(window.location.search);
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
 
   let remoteProfile = null;
   let activeProfileId = null;
@@ -214,7 +215,7 @@
   function setShareLink(slug) {
     const shareLink = document.getElementById("shareLink");
     if (!shareLink) return;
-    shareLink.textContent = `${appUrl.replace(/\/$/, "")}/?profile=${slug}`;
+    shareLink.textContent = `${appUrl.replace(/\/$/, "")}/perfil/${slug}`;
   }
 
   function mapReviewRow(row) {
@@ -666,7 +667,7 @@
     if (mpInput && !mpInput.value && cfg.NEXT_PUBLIC_MP_PUBLIC_KEY) {
       mpInput.value = cfg.NEXT_PUBLIC_MP_PUBLIC_KEY;
     }
-    const slug = query.get("profile");
+    const slug = pathParts[0] === "perfil" ? pathParts[1] : query.get("profile");
     const user = await authGetUser();
     if (user) await window.applyUser(false, user);
     else await loadPublicState(slug);
