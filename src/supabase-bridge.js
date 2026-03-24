@@ -13,6 +13,7 @@
   const originalLoadAll = typeof loadAll === "function" ? loadAll : function () {};
   const query = new URLSearchParams(window.location.search);
   const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const isSharedProfileRoute = pathParts[0] === "perfil" && !!pathParts[1];
 
   let remoteProfile = null;
   let activeProfileId = null;
@@ -216,6 +217,29 @@
     const shareLink = document.getElementById("shareLink");
     if (!shareLink) return;
     shareLink.textContent = `${appUrl.replace(/\/$/, "")}/perfil/${slug}`;
+    const pubRouteHint = document.getElementById("pubRouteHint");
+    if (pubRouteHint) {
+      pubRouteHint.textContent = `${appUrl.replace(/\/$/, "")}/perfil/${slug}`;
+    }
+  }
+
+  function setPublicShell(enabled) {
+    document.body.classList.toggle("public-mode", enabled);
+    const authWrap = document.getElementById("authWrap");
+    const pill = document.getElementById("uPill");
+    if (enabled) {
+      if (authWrap) authWrap.classList.add("gone");
+      if (pill) pill.style.display = "none";
+    }
+  }
+
+  function openPublicProfileView() {
+    if (typeof go === "function") {
+      go("public");
+      return;
+    }
+    document.querySelectorAll(".view").forEach((el) => el.classList.remove("on"));
+    document.getElementById("v-public")?.classList.add("on");
   }
 
   function mapReviewRow(row) {
@@ -364,13 +388,10 @@
       const profile = await fetchPublicProfile(slug);
       if (!profile) return false;
       publicMode = true;
+      setPublicShell(true);
       syncProfileToUi(profile);
       await loadReviews(profile.id);
-      if (slug) {
-        const authWrap = document.getElementById("authWrap");
-        if (authWrap) authWrap.classList.add("gone");
-        if (typeof go === "function") go("public");
-      }
+      openPublicProfileView();
       return true;
     } catch (error) {
       console.error(error);
@@ -458,6 +479,7 @@
       av: getAvatarLabel(getFullName(resolvedUser))
     };
     publicMode = false;
+    setPublicShell(false);
     document.getElementById("authWrap")?.classList.add("gone");
     const pill = document.getElementById("uPill");
     if (pill) pill.style.display = "flex";
@@ -551,6 +573,7 @@
     reviews = [];
     activeProfileId = null;
     publicMode = false;
+    setPublicShell(false);
     document.getElementById("authWrap")?.classList.remove("gone");
     const pill = document.getElementById("uPill");
     if (pill) pill.style.display = "none";
@@ -661,6 +684,10 @@
   };
 
   async function bootstrap() {
+    if (isSharedProfileRoute) {
+      setPublicShell(true);
+      openPublicProfileView();
+    }
     const connected = await checkConnection();
     if (!connected) return;
     const mpInput = document.getElementById("mp-pk");
@@ -669,6 +696,10 @@
     }
     const slug = pathParts[0] === "perfil" ? pathParts[1] : query.get("profile");
     const user = await authGetUser();
+    if (isSharedProfileRoute) {
+      await loadPublicState(slug);
+      return;
+    }
     if (user) await window.applyUser(false, user);
     else await loadPublicState(slug);
   }
