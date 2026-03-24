@@ -21,9 +21,22 @@ const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", "http://localhost");
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
-    const filePath = path.join(dist, pathname);
-    const ext = path.extname(filePath);
-    const content = await readFile(filePath);
+    let filePath = path.join(dist, pathname);
+    let ext = path.extname(filePath);
+    let content;
+
+    try {
+      content = await readFile(filePath);
+    } catch {
+      if (!ext) {
+        filePath = path.join(dist, "index.html");
+        ext = ".html";
+        content = await readFile(filePath);
+      } else {
+        throw new Error("not_found");
+      }
+    }
+
     res.writeHead(200, { "Content-Type": mimeTypes[ext] || "application/octet-stream" });
     res.end(content);
   } catch {
